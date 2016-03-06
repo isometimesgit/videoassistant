@@ -1,0 +1,58 @@
+{
+  "title": "Video Assistant",
+  "name": "videoassistant",
+  "version": "1.0.3",
+  "description": "Play embedded videos in external player",
+  "main": "index.js",
+  "author": "Ed Williams",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "MIT",
+  "permissions": {
+    "private-browsing": true
+  },
+  "preferences": [{
+    "name": "executePath",
+    "title": "Media player",
+    "description": "Media player executable path",
+    "type": "file",
+    "value": "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe"
+    },
+    { 
+      "name": "active",   
+      "title": "Plugin active",
+      "type": "bool",
+      "value": false,
+      "hidden": true
+    },
+    { 
+      "name": "uriExtensions",
+      "title": "Video types",
+      "description": "Comma separated list of file extensions to open",
+      "type": "string",
+      "value": "mp4,flv,avi,mpg,ogv,mkv,3gp" 
+    },
+    { 
+      "name": "enableYoutube",
+      "title": "Enable Youtube",
+      "description": "Open Youtube videos (player must support this e.g. mpv)",
+      "type": "bool",        
+      "value": false 
+    },
+    { 
+      "name": "closeTab",
+      "title": "Close tab",
+      "description": "Automatically close tab when media player starts",
+      "type": "bool",        
+      "value": true 
+    },
+    { 
+      "name": "cancelDefault",
+      "title": "Stop browser playing",
+      "description": "Stop the browser playing the video",
+      "type": "bool",        
+        "value": true 
+    }]
+}
