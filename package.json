@@ -35,13 +35,6 @@
       "value": "mp4,flv,avi,mpg,ogv,mkv,3gp" 
     },
     { 
-      "name": "enableYoutube",
-      "title": "Enable Youtube",
-      "description": "Open Youtube videos (player must support this e.g. mpv)",
-      "type": "bool",        
-      "value": false 
-    },
-    { 
       "name": "closeTab",
       "title": "Close tab",
       "description": "Automatically close tab when media player starts",
@@ -54,5 +47,26 @@
       "description": "Stop the browser playing the video",
       "type": "bool",        
         "value": true 
+    },
+    { 
+      "name": "enableYoutube",
+      "title": "Enable Youtube",
+      "description": "Open Youtube videos (player must support Youtube urls e.g. mpv)",
+      "type": "bool",        
+      "value": false 
+    },
+    {
+      "name": "enableDomainBlacklist",
+      "title": "Enable blacklist",
+      "description": "Ignore video requests on these domains",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "name": "domainBlacklist",
+      "title": "Black listed domains",
+      "description": "Comma separated list of domains",
+      "type": "string",
+      "value": "fbcdn.net"
     }]
 }
