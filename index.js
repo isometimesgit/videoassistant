@@ -95,38 +95,33 @@ var plugin = ({
         regex: null,
         build: function() {
             var ext = config.prefs["uriExtensions"].trim().replace(/,/g,"|");
-            if (ext.length) {        
-                if (config.prefs["enableYoutube"]) {
-                    this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*|https:\\/\\/www\\.youtube\\.com\\/watch\\?v=.+$", "i");
-                } else {
-                    this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*$", "i");
-                }
+            if (config.prefs["enableYoutube"] && ext.length) {
+                this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*|https:\\/\\/www\\.youtube\\.com\\/watch\\?v=.+$", "i");
+            } else if (config.prefs["enableYoutube"] && !ext.length) {
+                this.regex = new RegExp("^https:\\/\\/www\\.youtube\\.com\\/watch\\?v=.+$", "i");
+            } else if (ext.length) {
+                this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*$", "i");
+            } else {
+                this.regex = null;
             }
         },
         test: function(url) {
-            return this.regex.test(url);       
+            return this.regex && this.regex.test(url);       
         }
     },
     // blacklisted domains
     blacklist: {
-        list: null,
+        regex: null,
         build: function() {
-           var domains = config.prefs["domainBlacklist"].trim();
-            if (domains.length) {
-                this.list = domains.split(/\s*,\s*/);
-            }
+           var domains = config.prefs["domainBlacklist"].trim().replace(/,/g,"|");
+            if (config.prefs["enableDomainBlacklist"] && domains.length) {
+                this.regex = new RegExp("^((.*)[\./])?("+domains+")([:][0-9]+)?[/]+(.+)$", "i");    
+            } else {
+                this.regex = null;
+            }           
         },
         test: function(url) {
-            var i, len = this.list.length;
-            if (!len) {
-                return false;
-            }
-            for (i=0; i < len; i++) {
-                if (url.indexOf(this.list[i]) > -1) {
-                    break;
-                }
-            }     
-            return (i < len);   
+            return this.regex && this.regex.test(url);   
         }
     }
 }.init());
