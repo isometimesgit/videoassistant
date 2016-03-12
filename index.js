@@ -5,6 +5,9 @@ var {Cc,Ci,Cr} = require("chrome");
 var tabs = require("sdk/tabs");
 var config = require('sdk/simple-prefs');
 var observerService = Cc["@mozilla.org/observer-service;1"].getService(Ci.nsIObserverService);
+RegExp.escape = function(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+};
 var plugin = ({
     requestObserver: {},
     shutdownObserver: {},
@@ -14,8 +17,10 @@ var plugin = ({
     init: function() { 
         this.extensions.build();
         this.blacklist.build();
+        this.urlMatch.build();
         config.on("uriExtensions", this.extensions.build.bind(this.extensions));
-        config.on("enableYoutube", this.extensions.build.bind(this.extensions));
+        config.on("enableUrlMatch", this.urlMatch.build.bind(this.urlMatch));
+        config.on("urlMatch", this.urlMatch.build.bind(this.urlMatch));
         config.on("enableDomainBlacklist", this.blacklist.build.bind(this.blacklist));
         config.on("domainBlacklist", this.blacklist.build.bind(this.blacklist));
         this.active = config.prefs['active'];
@@ -57,10 +62,10 @@ var plugin = ({
     onRequest: function(subject, topic, data) {  
         subject.QueryInterface(Ci.nsIHttpChannel);
         var url = subject.URI.spec;
-        if (config.prefs['enableDomainBlacklist'] && this.blacklist.test(url)) {            
+        if (this.blacklist.test(url)) {            
             return;
         }
-        if (this.extensions.test(url)) {      
+        if (this.extensions.test(url) || this.urlMatch.test(url)) {      
             if (config.prefs["cancelDefault"] || config.prefs["closeTab"]) {
                 subject.cancel(Cr.NS_BINDING_ABORTED);
             }                                         
@@ -94,12 +99,8 @@ var plugin = ({
     extensions: {
         regex: null,
         build: function() {
-            var ext = config.prefs["uriExtensions"].trim().replace(/,/g,"|");
-            if (config.prefs["enableYoutube"] && ext.length) {
-                this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*|https:\\/\\/www\\.youtube\\.com\\/watch\\?v=.+$", "i");
-            } else if (config.prefs["enableYoutube"] && !ext.length) {
-                this.regex = new RegExp("^https:\\/\\/www\\.youtube\\.com\\/watch\\?v=.+$", "i");
-            } else if (ext.length) {
+            var ext = RegExp.escape(config.prefs["uriExtensions"]).trim().replace(/,/g,"|");
+            if (ext.length) {
                 this.regex = new RegExp("^([^\?]+)[.]("+ext+")([\?#]+.*)*$", "i");
             } else {
                 this.regex = null;
@@ -113,7 +114,7 @@ var plugin = ({
     blacklist: {
         regex: null,
         build: function() {
-           var domains = config.prefs["domainBlacklist"].trim().replace(/,/g,"|");
+            var domains = RegExp.escape(config.prefs["domainBlacklist"]).trim().replace(/,/g,"|");
             if (config.prefs["enableDomainBlacklist"] && domains.length) {
                 this.regex = new RegExp("^((.*)[\./])?("+domains+")([:][0-9]+)?[/]+(.+)$", "i");    
             } else {
@@ -123,5 +124,22 @@ var plugin = ({
         test: function(url) {
             return this.regex && this.regex.test(url);   
         }
+    },
+    // pass through urls e.g. youtube.com/watch?v=, dailymotion/video/ etc
+    urlMatch: {
+        regex: null,
+        build: function() {
+            var urls = RegExp.escape(config.prefs["urlMatch"]).trim().replace(/,/g,"|");
+            //console.error(urls);
+            if (config.prefs["enableUrlMatch"] && urls.length) {
+                this.regex = new RegExp("^(https?:\\/\\/)?("+urls+").*$", "i");    
+            } else {
+                this.regex = null;
+            }           
+        },
+        test: function(url) {
+            //console.error('testing: '+url+':'+this.regex.source+':'+this.regex.test(url));
+            return this.regex && this.regex.test(url);   
+        }  
     }
 }.init());
