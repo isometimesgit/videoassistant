@@ -48,12 +48,19 @@
       "type": "bool",        
         "value": true 
     },
-    { 
-      "name": "enableYoutube",
-      "title": "Enable Youtube",
-      "description": "Open Youtube videos (player must support Youtube urls e.g. mpv)",
-      "type": "bool",        
-      "value": false 
+    {
+      "name": "enableUrlMatch",
+      "title": "Enable url pass thru",
+      "description": "Open these urls like raw video requests (player must support opening these types of url's e.g. mpv which uses youtube-dl)",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "name": "urlMatch",
+      "title": "Urls to pass thru",
+      "description": "Comma separated list of urls",
+      "type": "string",
+      "value": "https://www.youtube.com/watch?v=,http://www.dailymotion.com/video/"
     },
     {
       "name": "enableDomainBlacklist",
